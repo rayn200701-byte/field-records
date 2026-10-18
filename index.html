@@ -12,15 +12,16 @@
 /* Layout: field-notebook page — one collecting-event label up top, then numbered specimen sheets (photo + typed label), 1 col on phone, 2 on wide screens */
 :root{
   --bg:#ecefe8; --sheet:#fafbf7; --ink:#1b221e; --muted:#5d6960; --line:#c9d0c2; --accent:#2e6a4e; --shade:rgba(20,30,24,.08);
+  --c1:#b3261e; --c2:#a35a00; --c3:#2d6a8a;
   --f-display:"Noto Serif TC","Songti TC",serif;
   --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
   --f-sci:"Newsreader","Times New Roman",serif;
   --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0e1310; --sheet:#161d18; --ink:#e4eae2; --muted:#93a196; --line:#2b362e; --accent:#8cc5a1; --shade:rgba(0,0,0,.35); color-scheme:dark}}
+  --bg:#0e1310; --sheet:#161d18; --ink:#e4eae2; --muted:#93a196; --line:#2b362e; --accent:#8cc5a1; --shade:rgba(0,0,0,.35); --c1:#ff8a80; --c2:#f0b45c; --c3:#7cc0e3; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0e1310; --sheet:#161d18; --ink:#e4eae2; --muted:#93a196; --line:#2b362e; --accent:#8cc5a1; --shade:rgba(0,0,0,.35); color-scheme:dark}
+  --bg:#0e1310; --sheet:#161d18; --ink:#e4eae2; --muted:#93a196; --line:#2b362e; --accent:#8cc5a1; --shade:rgba(0,0,0,.35); --c1:#ff8a80; --c2:#f0b45c; --c3:#7cc0e3; color-scheme:dark}
 
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);line-height:1.6}
 .wrap{max-width:1080px;margin:0 auto;padding-block:40px 64px;
@@ -31,12 +32,27 @@ header{display:grid;gap:20px}
 .eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 h1{font-family:var(--f-display);font-weight:900;font-size:clamp(34px,7vw,56px);line-height:1.1;margin:0;text-wrap:balance;letter-spacing:.02em}
 
-.event{border:1.5px solid var(--ink);background:var(--sheet);display:grid;grid-template-columns:repeat(3,auto);justify-content:start;max-width:100%}
+.event{border:1.5px solid var(--ink);background:var(--sheet);display:grid;grid-template-columns:repeat(3,auto);justify-content:start;max-width:100%;margin:0}
 .event div{padding:12px 20px;display:grid;gap:2px;min-width:0}
 .event div+div{border-left:1px solid var(--line)}
 .event dt{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
 .event dd{margin:0;font-family:var(--f-display);font-weight:600;font-size:18px;font-variant-numeric:tabular-nums}
 @media (max-width:520px){.event{grid-template-columns:1fr 1fr}.event div:last-child{grid-column:1/-1;border-left:0;border-top:1px solid var(--line)}}
+
+/* one section per outing */
+.outing{display:grid;gap:20px}
+.outing-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;border-bottom:1.5px solid var(--ink);padding-bottom:10px}
+.outing-head h2{margin:0;font-family:var(--f-display);font-weight:900;font-size:26px;letter-spacing:.03em}
+.outing-head .when{font-family:var(--f-mono);font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.outing-head .n{margin-left:auto;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+
+/* Taiwan Wildlife Conservation Act categories */
+.tag{grid-column:2;justify-self:start;margin-top:8px;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;padding:3px 10px 3px 4px;border:1px solid var(--tc);color:var(--tc);border-radius:2px}
+.tag b{font-family:var(--f-mono);font-size:11px;background:var(--tc);color:var(--sheet);padding:1px 6px;border-radius:1px}
+.tag.c1{--tc:var(--c1)} .tag.c2{--tc:var(--c2)} .tag.c3{--tc:var(--c3)}
+.tag.c0{--tc:var(--muted);padding-left:10px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12px;color:var(--muted)}
+.legend .tag{grid-column:auto;margin:0;font-size:12px}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,440px),1fr));gap:28px}
 .sheet{background:var(--sheet);border:1px solid var(--line);box-shadow:0 1px 0 var(--shade),0 10px 30px -18px var(--shade);display:grid;grid-template-rows:auto auto 1fr}
@@ -77,15 +93,21 @@ footer{font-family:var(--f-mono);font-size:12px;color:var(--muted);border-top:1p
     <div class="eyebrow">Field Record</div>
     <h1>採集紀錄簿</h1>
     <dl class="event">
-      <div><dt>Locality 地點</dt><dd>二叭子植物園</dd></div>
-      <div><dt>Date 日期</dt><dd>2026.10.17</dd></div>
-      <div><dt>Records 筆數</dt><dd id="total">6 種</dd></div>
+      <div><dt>Outings 次數</dt><dd id="sOut">–</dd></div>
+      <div><dt>Records 筆數</dt><dd id="sRec">–</dd></div>
+      <div><dt>Protected 保育類</dt><dd id="sPro">–</dd></div>
     </dl>
+    <div class="legend" aria-label="保育等級說明">
+      <span class="tag c1"><b>I</b>瀕臨絕種</span>
+      <span class="tag c2"><b>II</b>珍貴稀有</span>
+      <span class="tag c3"><b>III</b>其他應予保育</span>
+      <span class="tag c0">一般類</span>
+    </div>
   </header>
 
-  <main class="grid" id="grid"></main>
+  <main id="book" style="display:grid;gap:48px"></main>
 
-  <footer><span>二叭子植物園 · 2026-10-17</span></footer>
+  <footer><span>保育等級依《野生動物保育法》陸域保育類野生動物名錄</span><span id="upd"></span></footer>
 </div>
 
 <div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="照片檢視">
@@ -101,44 +123,67 @@ footer{font-family:var(--f-mono);font-size:12px;color:var(--muted);border-top:1p
 </div>
 
 <script>
-const DATA=[
-  {zh:"翡翠樹蛙",sci:"Zhangixalus prasinatus",n:3},
-  {zh:"夾竹桃天蛾",sci:"Daphnis nerii",n:4},
-  {zh:"福建大頭蛙",sci:"Limnonectes fujianensis",n:3},
-  {zh:"斯文豪氏赤蛙",sci:"Odorrana swinhoana",n:1},
-  {zh:"閃光苔蛾",sci:"Chrysaeglia magnifica",n:1},
-  {zh:"日本棘竹節蟲",sci:"Neohirasea japonica",n:3},
+/* ── 紀錄資料：每次外出一筆，新紀錄加在最後 ──
+   cons: "I" 瀕臨絕種 / "II" 珍貴稀有 / "III" 其他應予保育 / "" 一般類 */
+const OUTINGS=[
+  {place:"二叭子植物園",date:"2026-10-17",species:[
+    {zh:"翡翠樹蛙",sci:"Zhangixalus prasinatus",cons:"III",img:["s1-1","s1-2","s1-3"]},
+    {zh:"夾竹桃天蛾",sci:"Daphnis nerii",cons:"",img:["s2-1","s2-2","s2-3","s2-4"]},
+    {zh:"福建大頭蛙",sci:"Limnonectes fujianensis",cons:"",img:["s3-1","s3-2","s3-3"]},
+    {zh:"斯文豪氏赤蛙",sci:"Odorrana swinhoana",cons:"",img:["s4-1"]},
+    {zh:"閃光苔蛾",sci:"Chrysaeglia magnifica",cons:"",img:["s5-1"]},
+    {zh:"日本棘竹節蟲",sci:"Neohirasea japonica",cons:"",img:["s6-1","s6-2","s6-3"]},
+  ]},
+  {place:"台北動物園",date:"2026-10-18",species:[
+    {zh:"冠八哥",sci:"Acridotheres cristatellus formosanus",cons:"II",img:["s7-1"]},
+  ]},
 ];
-const src=(i,j)=>`img/s${i+1}-${j+1}.jpg`;
-const pad=n=>String(n).padStart(2,"0");
-const grid=document.getElementById("grid");
-document.getElementById("total").textContent=DATA.length+" 種";
-const cur=DATA.map(()=>0);
+const CONS={I:["c1","瀕臨絕種"],II:["c2","珍貴稀有"],III:["c3","其他應予保育"],"":["c0","一般類"]};
 
-DATA.forEach((d,i)=>{
-  const el=document.createElement("article");
-  el.className="sheet";
-  el.innerHTML=`
-    <button class="photo" aria-label="放大 ${d.zh} 照片"><img src="${src(i,0)}" alt="${d.zh}" loading="${i<2?"eager":"lazy"}">${d.n>1?`<span class="count">1 / ${d.n}</span>`:""}</button>
-    ${d.n>1?`<div class="thumbs">${Array.from({length:d.n},(_,j)=>`<button aria-label="第 ${j+1} 張" aria-pressed="${j===0}"><img src="${src(i,j)}" alt="" loading="lazy"></button>`).join("")}</div>`:"<div></div>"}
-    <div class="label"><span class="no">No.${pad(i+1)}</span><span class="zh">${d.zh}</span><span class="sci">${d.sci}</span></div>`;
-  const main=el.querySelector(".photo img"), cnt=el.querySelector(".count");
-  el.querySelectorAll(".thumbs button").forEach((b,j)=>b.addEventListener("click",()=>{
-    cur[i]=j; main.src=src(i,j);
-    el.querySelectorAll(".thumbs button").forEach((x,k)=>x.setAttribute("aria-pressed",k===j));
-    if(cnt) cnt.textContent=`${j+1} / ${d.n}`;
-  }));
-  el.querySelector(".photo").addEventListener("click",()=>openLb(i,cur[i]));
-  grid.appendChild(el);
+const pad=n=>String(n).padStart(2,"0");
+const src=f=>`img/${f}.jpg`;
+const fmt=d=>d.replaceAll("-",".");
+// number every record in chronological order, then show newest outing first
+const DATA=[];OUTINGS.forEach(o=>o.species.forEach(s=>DATA.push({...s,no:DATA.length+1,place:o.place,date:o.date})));
+document.getElementById("sOut").textContent=OUTINGS.length+" 次";
+document.getElementById("sRec").textContent=DATA.length+" 筆";
+document.getElementById("sPro").textContent=DATA.filter(d=>d.cons).length+" 筆";
+document.getElementById("upd").textContent="最後更新 "+fmt(OUTINGS[OUTINGS.length-1].date);
+
+const book=document.getElementById("book");
+const cur={};
+[...OUTINGS].reverse().forEach((o,oi)=>{
+  const sec=document.createElement("section");sec.className="outing";
+  sec.innerHTML=`<div class="outing-head"><h2>${o.place}</h2><span class="when">${fmt(o.date)}</span><span class="n">${o.species.length} 筆</span></div><div class="grid"></div>`;
+  const grid=sec.querySelector(".grid");
+  DATA.filter(d=>d.date===o.date&&d.place===o.place).forEach(d=>{
+    const n=d.img.length, [cc,cl]=CONS[d.cons]||CONS[""];
+    cur[d.no]=0;
+    const el=document.createElement("article");el.className="sheet";
+    el.innerHTML=`
+      <button class="photo" aria-label="放大 ${d.zh} 照片"><img src="${src(d.img[0])}" alt="${d.zh}" loading="${oi===0?"eager":"lazy"}">${n>1?`<span class="count">1 / ${n}</span>`:""}</button>
+      ${n>1?`<div class="thumbs">${d.img.map((f,j)=>`<button aria-label="第 ${j+1} 張" aria-pressed="${j===0}"><img src="${src(f)}" alt="" loading="lazy"></button>`).join("")}</div>`:"<div></div>"}
+      <div class="label"><span class="no">No.${pad(d.no)}</span><span class="zh">${d.zh}</span><span class="sci">${d.sci}</span>
+        <span class="tag ${cc}">${d.cons?`<b>${d.cons}</b>`:""}${cl}</span></div>`;
+    const main=el.querySelector(".photo img"),cnt=el.querySelector(".count");
+    el.querySelectorAll(".thumbs button").forEach((b,j)=>b.addEventListener("click",()=>{
+      cur[d.no]=j;main.src=src(d.img[j]);
+      el.querySelectorAll(".thumbs button").forEach((x,k)=>x.setAttribute("aria-pressed",k===j));
+      if(cnt)cnt.textContent=`${j+1} / ${n}`;
+    }));
+    el.querySelector(".photo").addEventListener("click",()=>openLb(d.no,cur[d.no]));
+    grid.appendChild(el);
+  });
+  book.appendChild(sec);
 });
 
 // lightbox walks through every photo in the book, in record order
-const flat=[];DATA.forEach((d,i)=>{for(let j=0;j<d.n;j++)flat.push([i,j])});
+const flat=[];DATA.forEach(d=>d.img.forEach((f,j)=>flat.push([d,j])));
 const lb=document.getElementById("lb"),lbImg=document.getElementById("lbImg"),lbCap=document.getElementById("lbCap");
 let pos=0,lastFocus=null;
-function show(){const [i,j]=flat[pos];lbImg.src=src(i,j);lbImg.alt=DATA[i].zh;
-  lbCap.innerHTML=`No.${pad(i+1)} ${DATA[i].zh}<i>${DATA[i].sci}</i>`;}
-function openLb(i,j){lastFocus=document.activeElement;pos=flat.findIndex(([a,b])=>a===i&&b===j);show();lb.hidden=false;document.getElementById("lbClose").focus();}
+function show(){const [d,j]=flat[pos];lbImg.src=src(d.img[j]);lbImg.alt=d.zh;
+  lbCap.innerHTML=`No.${pad(d.no)} ${d.zh}<i>${d.sci}</i>`;}
+function openLb(no,j){lastFocus=document.activeElement;pos=flat.findIndex(([d,b])=>d.no===no&&b===j);show();lb.hidden=false;document.getElementById("lbClose").focus();}
 function closeLb(){lb.hidden=true;lastFocus&&lastFocus.focus();}
 const step=k=>{pos=(pos+k+flat.length)%flat.length;show();};
 document.getElementById("lbPrev").onclick=()=>step(-1);
