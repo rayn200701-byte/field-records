@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}*{box-sizing:border-box}</style>
+<title>野外採集紀錄簿</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: field-notebook page — one collecting-event label up top, then numbered specimen sheets (photo + typed label), 1 col on phone, 2 on wide screens */
+:root{
+  --bg:#ecefe8; --sheet:#fafbf7; --ink:#1b221e; --muted:#5d6960; --line:#c9d0c2; --accent:#2e6a4e; --shade:rgba(20,30,24,.08);
+  --f-display:"Noto Serif TC","Songti TC",serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-sci:"Newsreader","Times New Roman",serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1310; --sheet:#161d18; --ink:#e4eae2; --muted:#93a196; --line:#2b362e; --accent:#8cc5a1; --shade:rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1310; --sheet:#161d18; --ink:#e4eae2; --muted:#93a196; --line:#2b362e; --accent:#8cc5a1; --shade:rgba(0,0,0,.35); color-scheme:dark}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-block:40px 64px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:grid;gap:36px}
+
+header{display:grid;gap:20px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:900;font-size:clamp(34px,7vw,56px);line-height:1.1;margin:0;text-wrap:balance;letter-spacing:.02em}
+
+.event{border:1.5px solid var(--ink);background:var(--sheet);display:grid;grid-template-columns:repeat(3,auto);justify-content:start;max-width:100%}
+.event div{padding:12px 20px;display:grid;gap:2px;min-width:0}
+.event div+div{border-left:1px solid var(--line)}
+.event dt{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.event dd{margin:0;font-family:var(--f-display);font-weight:600;font-size:18px;font-variant-numeric:tabular-nums}
+@media (max-width:520px){.event{grid-template-columns:1fr 1fr}.event div:last-child{grid-column:1/-1;border-left:0;border-top:1px solid var(--line)}}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,440px),1fr));gap:28px}
+.sheet{background:var(--sheet);border:1px solid var(--line);box-shadow:0 1px 0 var(--shade),0 10px 30px -18px var(--shade);display:grid;grid-template-rows:auto auto 1fr}
+.photo{position:relative;aspect-ratio:4/5;max-width:100%;overflow:hidden;background:#0b0f0c;cursor:zoom-in;border:0;padding:0;display:block;width:100%}
+.photo img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .25s}
+.photo:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.count{position:absolute;right:10px;bottom:10px;font-family:var(--f-mono);font-size:11px;color:#fff;background:rgba(0,0,0,.55);padding:3px 8px;border-radius:2px;font-variant-numeric:tabular-nums}
+.thumbs{display:flex;gap:6px;padding:8px 8px 0;overflow-x:auto}
+.thumbs button{flex:0 0 56px;height:56px;padding:0;border:2px solid transparent;background:none;cursor:pointer;opacity:.6}
+.thumbs button img{width:100%;height:100%;object-fit:cover;display:block}
+.thumbs button[aria-pressed="true"]{border-color:var(--accent);opacity:1}
+.thumbs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.label{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;padding:16px 18px 20px;align-items:baseline}
+.no{grid-row:span 2;font-family:var(--f-mono);font-size:13px;color:var(--accent);border:1px solid var(--accent);padding:2px 6px;align-self:start;margin-top:6px;font-variant-numeric:tabular-nums}
+.zh{font-family:var(--f-display);font-weight:900;font-size:24px;line-height:1.3;letter-spacing:.03em;min-width:0}
+.sci{font-family:var(--f-sci);font-style:italic;font-size:18px;color:var(--muted);min-width:0}
+
+footer{font-family:var(--f-mono);font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+/* lightbox */
+.lb{position:fixed;inset:0;background:rgba(5,8,6,.94);z-index:50;display:grid;grid-template-rows:1fr auto;
+  padding:calc(12px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.lb img{max-width:100%;max-height:100%;object-fit:contain;margin:auto;display:block;min-height:0}
+.lb .stage{display:grid;min-height:0;place-items:center}
+.lb .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#e7ece6;padding-top:10px}
+.lb .cap{font-family:var(--f-display);font-weight:600;font-size:16px;min-width:0}
+.lb .cap i{font-family:var(--f-sci);font-weight:400;color:#a9b5ab;margin-left:8px}
+.lb button{background:none;border:1px solid #4a564d;color:#e7ece6;font:inherit;font-size:14px;padding:6px 12px;cursor:pointer;min-width:44px;min-height:40px}
+.lb button:focus-visible{outline:2px solid #8cc5a1}
+.lb .nav{display:flex;gap:8px;flex-shrink:0}
+@media (prefers-reduced-motion:reduce){.photo img{transition:none}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Field Record</div>
+    <h1>採集紀錄簿</h1>
+    <dl class="event">
+      <div><dt>Locality 地點</dt><dd>二叭子植物園</dd></div>
+      <div><dt>Date 日期</dt><dd>2026.10.17</dd></div>
+      <div><dt>Records 筆數</dt><dd id="total">6 種</dd></div>
+    </dl>
+  </header>
+
+  <main class="grid" id="grid"></main>
+
+  <footer><span>二叭子植物園 · 2026-10-17</span></footer>
+</div>
+
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="照片檢視">
+  <div class="stage"><img id="lbImg" alt=""></div>
+  <div class="bar">
+    <div class="cap" id="lbCap"></div>
+    <div class="nav">
+      <button id="lbPrev" aria-label="上一張">‹</button>
+      <button id="lbNext" aria-label="下一張">›</button>
+      <button id="lbClose" aria-label="關閉">✕</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA=[
+  {zh:"翡翠樹蛙",sci:"Zhangixalus prasinatus",n:3},
+  {zh:"夾竹桃天蛾",sci:"Daphnis nerii",n:4},
+  {zh:"福建大頭蛙",sci:"Limnonectes fujianensis",n:3},
+  {zh:"斯文豪氏赤蛙",sci:"Odorrana swinhoana",n:1},
+  {zh:"閃光苔蛾",sci:"Chrysaeglia magnifica",n:1},
+  {zh:"日本棘竹節蟲",sci:"Neohirasea japonica",n:3},
+];
+const src=(i,j)=>`img/s${i+1}-${j+1}.jpg`;
+const pad=n=>String(n).padStart(2,"0");
+const grid=document.getElementById("grid");
+document.getElementById("total").textContent=DATA.length+" 種";
+const cur=DATA.map(()=>0);
+
+DATA.forEach((d,i)=>{
+  const el=document.createElement("article");
+  el.className="sheet";
+  el.innerHTML=`
+    <button class="photo" aria-label="放大 ${d.zh} 照片"><img src="${src(i,0)}" alt="${d.zh}" loading="${i<2?"eager":"lazy"}">${d.n>1?`<span class="count">1 / ${d.n}</span>`:""}</button>
+    ${d.n>1?`<div class="thumbs">${Array.from({length:d.n},(_,j)=>`<button aria-label="第 ${j+1} 張" aria-pressed="${j===0}"><img src="${src(i,j)}" alt="" loading="lazy"></button>`).join("")}</div>`:"<div></div>"}
+    <div class="label"><span class="no">No.${pad(i+1)}</span><span class="zh">${d.zh}</span><span class="sci">${d.sci}</span></div>`;
+  const main=el.querySelector(".photo img"), cnt=el.querySelector(".count");
+  el.querySelectorAll(".thumbs button").forEach((b,j)=>b.addEventListener("click",()=>{
+    cur[i]=j; main.src=src(i,j);
+    el.querySelectorAll(".thumbs button").forEach((x,k)=>x.setAttribute("aria-pressed",k===j));
+    if(cnt) cnt.textContent=`${j+1} / ${d.n}`;
+  }));
+  el.querySelector(".photo").addEventListener("click",()=>openLb(i,cur[i]));
+  grid.appendChild(el);
+});
+
+// lightbox walks through every photo in the book, in record order
+const flat=[];DATA.forEach((d,i)=>{for(let j=0;j<d.n;j++)flat.push([i,j])});
+const lb=document.getElementById("lb"),lbImg=document.getElementById("lbImg"),lbCap=document.getElementById("lbCap");
+let pos=0,lastFocus=null;
+function show(){const [i,j]=flat[pos];lbImg.src=src(i,j);lbImg.alt=DATA[i].zh;
+  lbCap.innerHTML=`No.${pad(i+1)} ${DATA[i].zh}<i>${DATA[i].sci}</i>`;}
+function openLb(i,j){lastFocus=document.activeElement;pos=flat.findIndex(([a,b])=>a===i&&b===j);show();lb.hidden=false;document.getElementById("lbClose").focus();}
+function closeLb(){lb.hidden=true;lastFocus&&lastFocus.focus();}
+const step=k=>{pos=(pos+k+flat.length)%flat.length;show();};
+document.getElementById("lbPrev").onclick=()=>step(-1);
+document.getElementById("lbNext").onclick=()=>step(1);
+document.getElementById("lbClose").onclick=closeLb;
+lb.addEventListener("click",e=>{if(e.target===lb||e.target.classList.contains("stage"))closeLb();});
+document.addEventListener("keydown",e=>{if(lb.hidden)return;
+  if(e.key==="Escape")closeLb();else if(e.key==="ArrowRight")step(1);else if(e.key==="ArrowLeft")step(-1);});
+let tx=null;lb.addEventListener("touchstart",e=>{tx=e.touches[0].clientX},{passive:true});
+lb.addEventListener("touchend",e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)step(dx<0?1:-1);tx=null});
+</script>
+</body>
+</html>
